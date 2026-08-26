@@ -34,6 +34,15 @@ const upload = multer({ storage });
 
 // ─── Routes ──────────────────────────────────────────────
 
+// Root Route
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: '🚀 Velocity Luxury Car Rental API is active and running on Vercel!',
+    health: '/api/health'
+  });
+});
+
 // Health Check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
