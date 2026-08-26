@@ -1,25 +1,37 @@
 import mongoose from 'mongoose';
 import dns from 'dns';
 
+let cachedPromise = null;
+
 const connectDB = async () => {
   if (mongoose.connection.readyState >= 1) {
-    return;
+    return mongoose.connection;
+  }
+
+  if (cachedPromise) {
+    return cachedPromise;
   }
 
   try {
     dns.setServers(['8.8.8.8', '1.1.1.1']);
   } catch (err) {
-    console.warn('⚠️ Failed to set DNS servers:', err.message);
+    console.warn('⚠️ DNS server set warning:', err.message);
   }
 
-  try {
-    await mongoose.connect(process.env.Database, {
-      serverSelectionTimeoutMS: 5000,
-    });
+  cachedPromise = mongoose.connect(process.env.Database, {
+    serverSelectionTimeoutMS: 5000,
+    maxPoolSize: 10,
+    bufferCommands: false,
+  }).then((m) => {
     console.log('✅ Database Connected Successfully!');
-  } catch (err) {
+    return m;
+  }).catch((err) => {
+    cachedPromise = null;
     console.error('❌ Database Connection Failed:', err.message);
-  }
+    throw err;
+  });
+
+  return cachedPromise;
 };
 
 export default connectDB;
