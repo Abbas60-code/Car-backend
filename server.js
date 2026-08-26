@@ -12,7 +12,11 @@ const PORT = process.env.Port || 9000;
 connectCloudinary();
 connectDB();
 
-// ─── Start Server ─────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`🚀 Server Running on Port ${PORT}`);
-});
+// ─── Start Local Server ───────────────────────────────────
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server Running on Port ${PORT}`);
+  });
+}
+
+export default app;

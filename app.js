@@ -7,12 +7,26 @@ import carRoutes from './Routes/carRoutes.js';
 import bookingRoutes from './Routes/bookingRoutes.js';
 import adminRoutes from './Routes/adminRoutes.js';
 
+import contactRoutes from './Routes/contactRoutes.js';
+
+import connectDB from './Config/db.js';
+
 const app = express();
 
 // ─── Middlewares ─────────────────────────────────────────
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Ensure DB is connected in serverless environments
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
 
 // ─── Multer (memory storage) ──────────────────────────────
 const storage = multer.memoryStorage();
@@ -36,6 +50,9 @@ app.use('/api/bookings', bookingRoutes);
 
 // Admin Routes
 app.use('/api/admin', adminRoutes);
+
+// Contact Routes
+app.use('/api/contact', contactRoutes);
 
 // Image Upload → Cloudinary (general purpose)
 app.post('/api/upload', upload.single('image'), (req, res) => {
